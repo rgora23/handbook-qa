@@ -1,0 +1,11 @@
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.cache/
+*.egg-info/
+.env
+.DS_Store
+
+# Take-home brief, not part of the deliverable
+Sr._Sofware_Engineer_Take-Home_INSTRUCTIONS.pdf
