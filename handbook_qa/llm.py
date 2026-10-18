@@ -23,6 +23,15 @@ If the excerpts don't answer the question, reply with exactly {NOT_COVERED} and 
 Keep answers short and direct. Plain prose, no headings."""
 
 
+def is_not_covered(reply: str) -> bool:
+    """True if Claude said the excerpts don't answer the question.
+
+    Tolerates the small ways a model drifts from "exactly NOT_COVERED": a trailing period,
+    markdown backticks or bold, quotes, different case, extra whitespace.
+    """
+    return reply.strip().strip(".`*\"' \n").upper() == NOT_COVERED
+
+
 class AnswerError(Exception):
     """Claude couldn't produce an answer. The message is safe to show to the user."""
 

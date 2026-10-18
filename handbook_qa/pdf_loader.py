@@ -1,11 +1,16 @@
 """Read a PDF one page at a time, so every piece of text keeps its page number."""
 
+import logging
 import re
 import unicodedata
 from dataclasses import dataclass
 from pathlib import Path
 
 from pypdf import PdfReader
+
+# pypdf logs warnings about malformed files on its own. The caller turns real failures into
+# one clear message, so keep only errors.
+logging.getLogger("pypdf").setLevel(logging.ERROR)
 
 
 @dataclass(frozen=True)

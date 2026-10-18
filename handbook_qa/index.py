@@ -11,17 +11,25 @@ The two rankings are merged with reciprocal rank fusion.
 
 import hashlib
 import json
+import os
 import re
+import warnings
 from dataclasses import asdict, dataclass
 from pathlib import Path
 
-import numpy as np
-from fastembed import TextEmbedding
-from rank_bm25 import BM25Okapi
+# The one-time model download prints progress bars and an HF_TOKEN warning. The CLI says
+# what's happening in its own words instead. Must be set before fastembed is imported.
+os.environ.setdefault("HF_HUB_DISABLE_PROGRESS_BARS", "1")
+os.environ.setdefault("HF_HUB_VERBOSITY", "error")
 
-from handbook_qa import config
-from handbook_qa.chunker import Chunk, Segment, chunk_document
-from handbook_qa.pdf_loader import load_pdf
+import numpy as np  # noqa: E402
+from fastembed import TextEmbedding  # noqa: E402
+from pypdf.errors import PdfReadError  # noqa: E402
+from rank_bm25 import BM25Okapi  # noqa: E402
+
+from handbook_qa import config  # noqa: E402
+from handbook_qa.chunker import Chunk, Segment, chunk_document  # noqa: E402
+from handbook_qa.pdf_loader import load_pdf  # noqa: E402
 
 # Bump when chunking or cache layout changes in a way the settings below don't capture.
 CACHE_VERSION = 3
@@ -76,20 +84,32 @@ def is_cached(pdf_path: Path) -> bool:
     return all(p.exists() for p in _cache_paths(pdf_path))
 
 
+class SetupError(Exception):
+    """The index can't be loaded or built. The message is safe to show to the user."""
+
+
 def load_index(pdf_path: Path) -> Index:
     """Load the index from the cache, or build it (slow: minutes for ~1,000 pages)."""
-    embedder = TextEmbedding(config.EMBED_MODEL, cache_dir=str(config.CACHE_DIR / "models"))
+    embedder = _load_embedder()
     chunks_path, vectors_path = _cache_paths(pdf_path)
 
     if chunks_path.exists() and vectors_path.exists():
-        chunks = [_chunk_from_dict(d) for d in json.loads(chunks_path.read_text())]
-        vectors = np.load(vectors_path)
-        return Index(chunks, vectors, embedder)
+        try:
+            chunks = [_chunk_from_dict(d) for d in json.loads(chunks_path.read_text())]
+            vectors = np.load(vectors_path)
+            if len(chunks) != len(vectors):
+                raise ValueError("chunk and vector counts differ")
+            return Index(chunks, vectors, embedder)
+        except (ValueError, KeyError, TypeError, OSError):
+            pass  # Broken cache. Rebuild below; the new files overwrite it.
 
-    doc = load_pdf(pdf_path)
+    try:
+        doc = load_pdf(pdf_path)
+    except PdfReadError as e:
+        raise SetupError(f"{pdf_path.name} isn't a readable PDF.") from e
     chunks = chunk_document(doc, config.CHUNK_CHARS, config.OVERLAP_CHARS)
     if not chunks:
-        raise ValueError(f"No text found in {pdf_path.name}. Is it a scanned PDF?")
+        raise SetupError(f"No text found in {pdf_path.name}. Is it a scanned PDF?")
     vectors = np.array([_normalize(v) for v in embedder.passage_embed([c.text for c in chunks])])
 
     chunks_path.parent.mkdir(parents=True, exist_ok=True)
@@ -97,6 +117,19 @@ def load_index(pdf_path: Path) -> Index:
     # Chunks last: a cache only counts once both files exist.
     chunks_path.write_text(json.dumps([asdict(c) for c in chunks]))
     return Index(chunks, vectors, embedder)
+
+
+def _load_embedder() -> TextEmbedding:
+    with warnings.catch_warnings():
+        # fastembed tries to turn progress bars back on and warns that it can't.
+        warnings.filterwarnings("ignore", message="Cannot enable progress bars")
+        try:
+            return TextEmbedding(config.EMBED_MODEL, cache_dir=str(config.CACHE_DIR / "models"))
+        except ValueError as e:  # what fastembed raises when every download source fails
+            raise SetupError(
+                "Couldn't download the search model (64MB, first run only). "
+                "Check your internet connection and try again."
+            ) from e
 
 
 def _cache_paths(pdf_path: Path) -> tuple[Path, Path]:

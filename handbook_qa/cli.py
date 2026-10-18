@@ -5,7 +5,7 @@ import sys
 from pathlib import Path
 
 from handbook_qa import config, llm
-from handbook_qa.index import Index, is_cached, load_index
+from handbook_qa.index import Index, SetupError, is_cached, load_index
 from handbook_qa.qa import Answer, ask
 
 QUIT_WORDS = {"exit", "quit", "q"}
@@ -35,8 +35,16 @@ def main(argv: list[str] | None = None) -> int:
             file=sys.stderr,
         )
     if not is_cached(args.pdf):
-        print(f"Indexing {args.pdf.name} for the first time. This takes a few minutes.", file=sys.stderr)
-    index = load_index(args.pdf)
+        print(
+            f"Indexing {args.pdf.name} for the first time. This takes a few minutes "
+            "(and downloads a 64MB search model if needed).",
+            file=sys.stderr,
+        )
+    try:
+        index = load_index(args.pdf)
+    except SetupError as e:
+        print(e, file=sys.stderr)
+        return 1
 
     if args.question:
         return _ask_and_print(" ".join(args.question), index, client)
