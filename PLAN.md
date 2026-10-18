@@ -63,13 +63,20 @@ Changes made during the build because of what we measured, not planned up front.
 - **Follow-up questions with memory.** First next step after v1.
 - **A web UI.**
 
-## Known limitations to put in the README
+## Anticipated limitations
 
-- Some names are missing from the extracted text, so "who owns X" questions are weak.
+- Text extraction only sees text. Link URLs, text inside images, and table layout will likely be lost or flattened.
+- Some names are missing from the extracted text, so "who owns X" questions will be weak.
+- The PDF is a snapshot. Later handbook changes won't be reflected.
+- The search model is English-only, so questions in other languages will likely miss.
+- Meaning-based search may rank exact terms and loose paraphrases low.
+- One score cutoff, picked from a handful of questions, will misjudge some near-miss questions. The prompt backstop has to catch those.
+- Overlapping chunks may fill the top 5 with near-duplicates.
+- Sources will name the top-level section, not subheadings.
 - No follow-up memory.
-- Search matches meaning and exact words, but not paraphrases that share neither ("spend without asking" vs "User Limit of $5,000 per month").
-- Single document only.
-- Answer quality is unverified until there's an API key.
+- Single document only. Section detection and the cutoff are tuned to this handbook, so other PDFs will work less well.
+- Excerpts go to Claude as written, so a PDF with instructions in it could try to steer answers.
+- Answer quality can't be verified until there's an API key.
 
 ## Order of work
 
