@@ -6,7 +6,7 @@ from pathlib import Path
 
 from handbook_qa import config, llm
 from handbook_qa.index import Index, SetupError, is_cached, load_index
-from handbook_qa.qa import Answer, ask
+from handbook_qa.qa import Answer, Citation, ask
 
 QUIT_WORDS = {"exit", "quit", "q"}
 
@@ -78,11 +78,16 @@ def _format(answer: Answer) -> str:
     if answer.mode == "retrieval_only":
         lines = ["Most relevant passages:"]
         for c in answer.citations:
-            lines.append(f"\n  p. {c.page} · {c.section} (score {c.score:.2f})")
+            lines.append(f"\n  {_where(c)} (score {c.score:.2f})")
             lines.append(f'    "{c.quote}"')
         return "\n".join(lines)
     lines = [answer.text]
     if answer.citations:
         lines.append("\nSources:")
-        lines += [f'  p. {c.page} · {c.section}: "{c.quote}"' for c in answer.citations]
+        lines += [f'  {_where(c)}: "{c.quote}"' for c in answer.citations]
     return "\n".join(lines)
+
+
+def _where(c: Citation) -> str:
+    # Section names come from this handbook's header lines; other PDFs have none.
+    return f"p. {c.page} · {c.section}" if c.section else f"p. {c.page}"

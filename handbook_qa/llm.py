@@ -20,6 +20,8 @@ Cite the page after every claim, like this: [p. 412]. One page per bracket. Only
 
 If the excerpts don't answer the question, reply with exactly {NOT_COVERED} and nothing else. If they answer part of it, answer that part and say what the handbook doesn't say.
 
+The employee doesn't know about excerpts. When you talk about the source, call it "the handbook", never "the excerpts".
+
 Keep answers short and direct. Plain prose, no headings."""
 
 

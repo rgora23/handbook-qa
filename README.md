@@ -36,7 +36,7 @@ Or start an interactive session, and type `exit` or press Ctrl-D to quit:
 ask
 ```
 
-The first run indexes the handbook and downloads a 64MB search model. That takes about 2 minutes. After that, startup takes about 2 seconds.
+The first run indexes the handbook and downloads a 64MB search model. That takes 2–3 minutes. After that, startup takes about 2 seconds.
 
 Options:
 
@@ -102,12 +102,12 @@ Off-topic questions get `The handbook doesn't cover this.`
 pytest
 ```
 
-55 tests, none need an API key:
+57 tests, none need an API key:
 - **Retrieval on the real handbook:** 6 questions with hand-checked answer pages, and 6 off-topic or near-miss questions that must come back "not covered".
 - **Chunker and loader:** made-up documents, plus a 3-page fixture cut from the handbook.
 - **Answer path:** a fake Claude client. Covers cites, dropped cites, NOT_COVERED, the cutoff skipping Claude, and API errors mapped to typed errors.
 
-The first run builds the handbook index (about 2 minutes) if it isn't cached yet.
+The first run builds the handbook index (2–3 minutes) if it isn't cached yet.
 
 ## Assumptions
 
