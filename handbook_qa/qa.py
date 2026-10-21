@@ -11,7 +11,7 @@ from handbook_qa import config, llm
 from handbook_qa.chunker import SECTION_PATH
 from handbook_qa.index import Hit, Index
 
-NOT_COVERED_TEXT = "The handbook doesn't cover this."
+NOT_COVERED_TEXT = "I couldn't find this in the handbook."
 MAX_QUOTE_CHARS = 200
 
 _CITE = re.compile(r"\[p\.\s*(\d+)\]")

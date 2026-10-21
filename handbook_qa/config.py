@@ -20,7 +20,7 @@ TOP_K = 5
 FUSION_DEPTH = 50
 RRF_K = 60
 # If no retrieved chunk has a vector score at least this high, the answer is
-# "the handbook doesn't cover this". BM25 only affects ranking, not this check.
+# "I couldn't find this in the handbook". BM25 only affects ranking, not this check.
 # Picked from measured scores: off-topic questions topped out at 0.54, on-topic started at 0.655.
 MIN_SCORE: float | None = 0.60
 

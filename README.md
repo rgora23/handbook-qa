@@ -1,6 +1,6 @@
 # Handbook Q&A
 
-Ask questions about a company handbook in your terminal. Answers come only from the handbook and cite the pages they came from. If the handbook doesn't cover a question, it says so instead of guessing.
+Ask questions about a company handbook in your terminal. Answers come only from the handbook and cite the pages they came from. If it can't find the answer in the handbook, it says so instead of guessing.
 
 The source is the PostHog handbook PDF (1,076 pages), included as `Sample handbook.pdf`.
 
@@ -66,7 +66,7 @@ Most relevant passages:
   ...
 ```
 
-Off-topic questions get `The handbook doesn't cover this.`
+Off-topic questions get `I couldn't find this in the handbook.`
 
 ## How it works
 
@@ -79,7 +79,7 @@ Off-topic questions get `The handbook doesn't cover this.`
 **Each question:**
 
 4. **Search** (`index.py`). Rank every chunk two ways: by meaning (vector similarity) and by exact words (BM25). Merge the two rankings with reciprocal rank fusion and keep the top 5.
-5. **Cutoff** (`qa.py`). If none of the 5 has a vector score of at least 0.60, answer "The handbook doesn't cover this" without calling Claude.
+5. **Cutoff** (`qa.py`). If none of the 5 has a vector score of at least 0.60, answer "I couldn't find this in the handbook" without calling Claude.
 6. **Answer** (`llm.py`). Send the 5 chunks to Claude with `[p. N]` markers inside them. The prompt says to answer only from them, cite a page after every claim, and reply `NOT_COVERED` if they don't hold the answer.
 7. **Cite** (`qa.py`). Build Sources from the pages Claude cited, each with a one-sentence quote from that page. Cites to pages Claude wasn't shown are dropped from Sources.
 
@@ -115,7 +115,7 @@ The first run builds the handbook index (2–3 minutes) if it isn't cached yet.
 - **Page numbers are the PDF's own.** They match the numbers printed in each page's footer.
 - **The PDF has extractable text.** Scanned PDFs (images only) aren't supported. You get a clear message instead.
 - **Each question stands alone,** with no memory of earlier questions.
-- **"Not covered" beats a guess.** Saying the handbook doesn't cover something is better than a plausible guess.
+- **"Not covered" beats a guess.** Saying the answer couldn't be found is better than a plausible guess.
 - **One source document.** The brief asks about one company handbook, so v1 answers from a single PDF at a time. Supporting several is listed under Next steps.
 - **One local user.** It's a terminal app for one person: no login, no multi-user access, no hosting.
 - **English only.** The handbook and the questions are in English, so an English-only search model is enough.

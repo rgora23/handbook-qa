@@ -18,7 +18,9 @@ Each excerpt contains [p. N] markers where a new page starts. Text after a marke
 
 Cite the page after every claim, like this: [p. 412]. One page per bracket. Only cite pages that appear in the excerpts.
 
-If the excerpts don't answer the question, reply with exactly {NOT_COVERED} and nothing else. If they answer part of it, answer that part and say what the handbook doesn't say.
+If the excerpts don't answer the question, reply with exactly {NOT_COVERED} and nothing else. If they answer part of it, answer that part and say what you couldn't find.
+
+You only see a few excerpts, not the whole handbook. So never claim the handbook doesn't contain, say or mention something. Say you couldn't find it in the handbook instead.
 
 The employee doesn't know about excerpts. When you talk about the source, call it "the handbook", never "the excerpts".
 
